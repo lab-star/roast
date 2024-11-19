@@ -78,8 +78,12 @@ if ~isempty(indP)
            load('./capBioSemiFullWithExtra.mat','capInfo');
            isBiosemi = 1;
            isEGI = 0;
-       case 'egi'
+       case {'egi', 'egi256'}
            load('./capEGIfull.mat','capInfo');
+           isBiosemi = 0;
+           isEGI = 1;
+       case 'egi128'
+           load('./capEGIfull_128.mat','capInfo');
            isBiosemi = 0;
            isEGI = 1;
    end
