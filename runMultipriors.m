@@ -1,5 +1,5 @@
-function runMultipriors(T1,spmOut)
-% runMultipriors(T1,spmOut)
+function runMultipriors(T1,spmOut,multipriorsEnv)
+% runMultipriors(T1,spmOut,multipriorsEnv)
 % 
 % This calls MultiPriors segmentation that is based on a deep CNN.
 % 
@@ -71,60 +71,12 @@ else
     disp(['File ' outputFileName '.gz already exists. Warping TPM skipped...']);
 end
 
-% Install miniconda and MultiPriors enviornment if it doesn't exist
 % And prepare to run MultiPriors python script
-str = computer('arch');
-switch str
-    case 'win64'
-        if ~exist('multipriorsEnv', 'dir')
-            system([pwd '\lib\multipriors\setupWindows.bat']);
-        else
-            disp('Enviornment already exist on Windows. Skipping setup...');
-        end
 
-        % Specify the path to libiomp5md.dll (duplicate)
-        dllPath = [pwd '\lib\multipriors\multipriorsENV\Library\bin\libiomp5md.dll'];
-        if exist(dllPath, 'file')
-            delete(dllPath);
-            disp('Duplicate libiomp5md.dll has been deleted');
-        end
-
-        pythonExecutable = [pwd '\lib\multipriors\multipriorsEnv\python.exe'];
-
-    case 'glnxa64'
-        setupScript = [pwd '/lib/multipriors/setupLinux.sh'];
-
-        % Grant execute permissions to the script
-        system(['chmod +x ' setupScript]);
-
-        if ~exist('multipriorsEnvLinux', 'dir')
-            system([pwd '/lib/multipriors/setupLinux.sh']);
-        else
-            disp('Enviornment already exist on Linux. Skipping setup...');
-        end
-
-        pythonExecutable = [pwd '/lib/multipriors/multipriorsEnvLinux/bin/python3'];
-
-    case 'maci64'
-        setupScript = [pwd '/lib/multipriors/setupMac.sh'];
-
-        % Grant execute permissions to the script
-        system(['chmod +x ' setupScript]);
-
-        if ~exist('multipriorsEnvMac', 'dir')
-            system([pwd '/lib/multipriors/setupMac.sh']);
-        else
-            disp('Enviornment already exist on Mac. Skipping setup...');
-        end
-
-        pythonExecutable = [pwd '/lib/multipriors/multipriorsEnvMac/bin/python3'];
-
-    otherwise
-        error('Unsupported operating system!');
-end
-
+pythonExecutable = multipriorsEnv;
 pythonScript = [pwd '/lib/multipriors/SEGMENT.py'];
 configFile = [pwd '/lib/multipriors/Segmentation_config.py'];
+
 
 T1 = ['"' T1 '"']; % To allow spaces in subject path
 
