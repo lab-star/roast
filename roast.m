@@ -128,6 +128,9 @@ while indArg <= length(varargin)
         case 'multipriors'
             multipriors = varargin{indArg+1};
             indArg = indArg+2;
+        case 'multipriorsenv'
+            multipriorsEnv = varargin{indArg+1};
+            indArg = indArg+2;
         case 'meshoptions'
             meshOpt = varargin{indArg+1};
             indArg = indArg+2;
@@ -144,7 +147,7 @@ while indArg <= length(varargin)
             paddingAmt = varargin{indArg+1};
             indArg = indArg+2;
         otherwise
-            error('Supported options are: ''capType'', ''elecType'', ''elecSize'', ''elecOri'', ''T2'', ''multipriors'',''meshOptions'',''conductivities'', ''simulationTag'', ''resampling'', and ''zeroPadding''.');
+            error('Supported options are: ''capType'', ''elecType'', ''elecSize'', ''elecOri'', ''T2'', ''multipriors'',''multipriorsEnv'',''meshOptions'',''conductivities'', ''simulationTag'', ''resampling'', and ''zeroPadding''.');
     end
 end
 
@@ -464,6 +467,18 @@ else
     end
 end
 
+if ~exist('multipriorsEnv', 'var')
+    multipriorsEnv = 'multipriorsEnv';  % Default to standard env dir
+else
+    if ~ischar(multipriorsEnv)
+        error('Unrecognized option value. Please provide a valid path to python executable ''multipriorsEnv''.');
+    end
+    if exist(multipriorsEnv, 'file') ~= 2  % Check if the path exists and is a file
+        error('The specified path for ''multipriorsEnv'' is invalid or does not exist. Please enter a valid Python executable file path.');
+    end
+end
+
+
 if multipriors && ~isempty(T2)
     error('MultiPriors cannot be run with both T1 and T2 images. If you meant to use MultiPriors, please only provide T1 image with option ''multipriors'' turned on.');
 end
@@ -761,7 +776,7 @@ else
     error('Something is wrong!');
 end
 
-options = struct('configTxt',configTxt,'elecPara',elecPara,'T2',T2,'multipriors',multipriors,'meshOpt',meshOpt,'conductivities',conductivities,'uniqueTag',simTag,'resamp',doResamp,'zeroPad',paddingAmt,'isNonRAS',isNonRAS);
+options = struct('configTxt',configTxt,'elecPara',elecPara,'T2',T2,'multipriors',multipriors,'multipriorsEnv',multipriorsEnv,'meshOpt',meshOpt,'conductivities',conductivities,'uniqueTag',simTag,'resamp',doResamp,'zeroPad',paddingAmt,'isNonRAS',isNonRAS);
 
 % log tracking
 Sopt = dir([dirname filesep subjName '_*_roastOptions.mat']);
@@ -837,7 +852,7 @@ if ~strcmp(subjName,'nyhead')
             disp('======================================================')
             disp('    STEP 2 (out of 6): MULTIPRIORS SEGMENTATION ...   ')
             disp('======================================================')
-            runMultipriors(subjRasRSPD,subjRasRSPDspm);
+            runMultipriors(subjRasRSPD,subjRasRSPDspm,multipriorsEnv);
         else
             disp('======================================================')
             disp('    STEP 2 (out of 6): SPM SEGMENTATION TOUCHUP ...   ')
